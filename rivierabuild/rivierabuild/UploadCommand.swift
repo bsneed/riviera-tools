@@ -255,6 +255,8 @@ class UploadCommand: Command {
                 parameters["commit_sha"] = commitHash!
             }
 
+            println("SHA sent to riviera: \(commitHash!)")
+            
             let riviera = RivieraBuildAPI(apiKey: apiKey!)
             let json = riviera.uploadBuild(ipa, parameters: parameters)
 
