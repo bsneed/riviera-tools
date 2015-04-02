@@ -10,7 +10,7 @@ import Foundation
 
 class VersionCommand: Command {
     
-    var version = "1.0"
+    var version = "1.0.1"
     
     override func commandName() -> String  {
         return "version"

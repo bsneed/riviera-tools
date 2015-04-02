@@ -10,7 +10,7 @@ import Foundation
 
 public struct RivieraBuildAPI {
     
-    private let baseURL: String = "http://beta.rivierabuild.com"
+    private let baseURL: String = "https://apps.rivierabuild.com"
     private let apiKey: String
     
     init(apiKey: String) {
