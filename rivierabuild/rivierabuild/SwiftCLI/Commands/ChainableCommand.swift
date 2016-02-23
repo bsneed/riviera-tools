@@ -32,12 +32,12 @@ class ChainableCommand: LightweightCommand {
     // MARK: - Options
     
     func withFlagsHandled(flags: [String], block: OptionsFlagBlock?, usage: String) -> ChainableCommand {
-        handleFlags(flags, block: block, usage: usage)
+        handleFlags(flags, usage: usage, block: block)
         return self
     }
     
-    func withKeysHandled(keys: [String], block: OptionsKeyBlock?, usage: String = "", valueSignature: String = "value") -> ChainableCommand {
-        handleKeys(keys, block: block, usage: usage, valueSignature: valueSignature)
+    func withKeysHandled(keys: [String], usage: String = "", valueSignature: String = "value", block: OptionsKeyBlock?) -> ChainableCommand {
+        handleKeys(keys, usage: usage, valueSignature: valueSignature, block: block)
         return self
     }
     

@@ -10,31 +10,31 @@ import Foundation
 
 class Input {
     
-    class func awaitInput(#message: String?) -> String {
+    class func awaitInput(message message: String?) -> String {
         if let message = message {
-            println(message)
+            print(message)
         }
         
         let fh = NSFileHandle.fileHandleWithStandardInput()
         var input = NSString(data: fh.availableData, encoding: NSUTF8StringEncoding) as! String
-        input = input.substringToIndex(advance(input.endIndex, -1))
+        input = input.substringToIndex(input.endIndex.advancedBy(-1))
         
         return input
     }
     
-    class func awaitInputWithValidation(#message: String?, validation: (input: String) -> Bool) -> String {
+    class func awaitInputWithValidation(message message: String?, validation: (input: String) -> Bool) -> String {
         while (true) {
             let str = awaitInput(message: message)
             
             if validation(input: str) {
                 return str
             } else {
-                println("Invalid input")
+                print("Invalid input")
             }
         }
     }
     
-    class func awaitInputWithConversion<T>(#message: String?, conversion: (input: String) -> T?) -> T {
+    class func awaitInputWithConversion<T>(message message: String?, conversion: (input: String) -> T?) -> T {
         let input = awaitInputWithValidation(message: message) {input in
             return conversion(input: input) != nil
         }
@@ -42,8 +42,8 @@ class Input {
         return conversion(input: input)!
     }
     
-    class func awaitInt(#message: String?) -> Int {
-        return awaitInputWithConversion(message: message) { $0.toInt() }
+    class func awaitInt(message message: String?) -> Int {
+        return awaitInputWithConversion(message: message) { Int($0) }
     }
     
     class func awaitYesNoInput(message: String = "Confirm?") -> Bool {

@@ -37,7 +37,7 @@ class SignatureParser {
             return (.Failure, errorMessage(expectedCount: requiredArgs.count + optionalArgs.count, givenCount: arguments.count))
         }
 
-        var namedArgs: NSMutableDictionary = [:]
+        let namedArgs: NSMutableDictionary = [:]
         
         // First handle required arguments
         for i in 0..<requiredArgs.count {
@@ -117,10 +117,10 @@ class SignatureParser {
     private func sanitizeKey(key: String) -> String {
         let arg = key as NSString
         let multiplier = key.hasPrefix("[") ? 2 : 1
-        return arg.substringWithRange(NSMakeRange(1 * multiplier, count(key.utf16) - 2 * multiplier))
+        return arg.substringWithRange(NSMakeRange(1 * multiplier, key.utf16.count - 2 * multiplier))
     }
     
-    private func errorMessage(#expectedCount: Int, givenCount: Int) -> String {
+    private func errorMessage(expectedCount expectedCount: Int, givenCount: Int) -> String {
         let argString = expectedCount == 1 ? "argument" : "arguments"
         return "Expected \(expectedCount) \(argString), but got \(givenCount)."
     }

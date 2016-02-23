@@ -22,7 +22,7 @@ public struct RivieraBuildAPI {
         
         let session = NSURLSession.sharedSession()
         
-        let urlString = baseURL + "/api/applications/" + appID + "/builds/latest?api_key=" + apiKey
+        let urlString = baseURL + "/v1/applications/" + appID + "/builds/latest?api_key=" + apiKey
         let url = NSURL(string: urlString)!
         
         // we want this call to be synchronous
@@ -32,7 +32,7 @@ public struct RivieraBuildAPI {
         request.HTTPMethod = "GET"
         
         let task = session.dataTaskWithRequest(request) { (data, response, error) -> Void in
-            if data != nil {
+            if let data = data {
                 let dataString: String = NSString(data: data, encoding: NSUTF8StringEncoding)! as String
                 json = JSON(string: dataString)
             }
@@ -90,7 +90,7 @@ public struct RivieraBuildAPI {
             uploadData.appendData("\r\n--\(boundaryConstant)--\r\n".dataUsingEncoding(NSUTF8StringEncoding)!)
 
             let task = session.uploadTaskWithRequest(request, fromData: uploadData) { (data, response, error) -> Void in
-                if data != nil {
+                if let data = data {
                     let dataString: String = NSString(data: data, encoding: NSUTF8StringEncoding)! as String
                     json = JSON(string: dataString)
                 }

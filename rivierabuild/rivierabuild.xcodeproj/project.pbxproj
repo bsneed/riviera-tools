@@ -35,7 +35,7 @@
 		CAE5D4AB1A9CF8DD002F6D0E /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 12;
-			dstPath = "~";
+			dstPath = "~/bin";
 			dstSubfolderSpec = 0;
 			files = (
 				CAE5D4D31A9CFF7E002F6D0E /* rivierabuild in CopyFiles */,
@@ -190,6 +190,8 @@
 		CAE5D4A51A9CF8DD002F6D0E /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftMigration = 0720;
+				LastSwiftUpdateCheck = 0720;
 				LastUpgradeCheck = 0630;
 				ORGANIZATIONNAME = TheHolyGrail;
 				TargetAttributes = {
@@ -328,6 +330,7 @@
 		CAE5D4B51A9CF8DD002F6D0E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				INSTALL_PATH = "/usr/local/bin ~/bin";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;

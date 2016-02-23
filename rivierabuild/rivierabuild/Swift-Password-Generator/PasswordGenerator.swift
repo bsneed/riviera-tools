@@ -8,15 +8,15 @@
 import Foundation
 
 extension Array {
-    func randomItem() -> T? {
+    func randomItem() -> Element? {
         let idx = Int(arc4random()) % count
         return self[idx]
     }
     
     // Could contain duplicates
-    func randomItems(total: Int) -> [T] {
-        var result: [T] = []
-        for i in (0..<total) {
+    func randomItems(total: Int) -> [Element] {
+        var result: [Element] = []
+        for _ in (0..<total) {
             if let item = randomItem() {
                 result += [item]
             }
@@ -24,7 +24,7 @@ extension Array {
         return result
     }
     
-    func shuffleItems() -> [T] {
+    func shuffleItems() -> [Element] {
         var newArray = self
         for i in (0..<newArray.count) {
             let j = Int(arc4random()) % newArray.count
@@ -36,9 +36,9 @@ extension Array {
 
 extension String {
     func split(bySeparator: String) -> Array<String> {
-        if count(bySeparator) < 1 {
+        if bySeparator.characters.count < 1 {
             var items: [String] = []
-            for c in self {
+            for c in self.characters {
                 let str = String(c)
                 items.append(str)
             }

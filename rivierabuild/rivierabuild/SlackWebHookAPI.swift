@@ -37,18 +37,18 @@ public struct SlackWebHookAPI {
             contents["text"] = text
             
             let jsonPayload = JSON(contents)
-            let tempString = jsonPayload.toString(pretty: true)
+            let tempString = jsonPayload.toString(true)
             let data = tempString.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)
             
             request.HTTPBody = data
             
             let task = session.dataTaskWithRequest(request) { (data, response, error) -> Void in
-                if data != nil {
+                if let data = data {
                     let dataString: String = NSString(data: data, encoding: NSUTF8StringEncoding)! as String
                     if dataString == "ok" {
                         result = true
                     } else {
-                        println("postToSlack returned: %@", dataString)
+                        print("postToSlack returned: %@", dataString)
                     }
                 }
                 
