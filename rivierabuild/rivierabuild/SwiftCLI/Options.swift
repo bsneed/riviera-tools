@@ -30,7 +30,7 @@ class Options {
         
         for arg in arguments.argumentsArray {
             if arg.hasPrefix("-") {
-                var allOptions = splitOption(arg)
+                let allOptions = splitOption(arg)
                 
                 for option in allOptions {
                     if let key = keyAwaitingValue {
@@ -42,7 +42,7 @@ class Options {
                         continue
                     }
                     
-                    if contains(expectedKeys, option) {
+                    if expectedKeys.contains(option) {
                         keyAwaitingValue = option
                         continue
                     }
@@ -77,8 +77,8 @@ class Options {
     
     private func characterArrayForString(string: String) -> [String] {
         var chars: [String] = []
-        for i in 0..<count(string.utf16) {
-            let index = advance(string.startIndex, i)
+        for i in 0..<string.utf16.count {
+            let index = string.startIndex.advancedBy(i)
             let str = String(string[index])
             chars.append(str)
         }
@@ -86,7 +86,7 @@ class Options {
     }
     
     private func tryFlag(flag: String) -> Bool {
-        if let index = find(expectedFlags, flag) {
+        if let index = expectedFlags.indexOf(flag) {
             let block = expectedFlagBlocks[index]
             block?(flag: flag)
             return true
@@ -95,7 +95,7 @@ class Options {
     }
     
     private func foundKeyValue(key: String, value: String) {
-        let index = find(expectedKeys, key)
+        let index = expectedKeys.indexOf(key)
         let block = expectedKeyBlocks[index!]
         block?(key: key, value: value)
     }

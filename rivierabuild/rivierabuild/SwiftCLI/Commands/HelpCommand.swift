@@ -33,8 +33,8 @@ class HelpCommand: Command {
     }
     
     override func execute() -> CommandResult  {
-        println("\(CLI.appDescription())\n")
-        println("Available commands: ")
+        print("\(CLI.appDescription())\n")
+        print("Available commands: ")
 
         for command in allCommands {
             printCommand(command)
@@ -47,7 +47,7 @@ class HelpCommand: Command {
     
     func printCommand(command: Command) {
         let str = padString(command.commandShortDescription(), toLength: 20, firstComponent: command.commandName())
-        println("- \(command.commandName())\(str)")
+        print("- \(command.commandName())\(str)")
     }
     
 }

@@ -27,9 +27,9 @@ extension NSFileManager {
     func temporaryFile() -> NSString {
         let uniqueString = NSProcessInfo.processInfo().globallyUniqueString
         let filename = NSString(format: "%@_%@", uniqueString, "file.txt")
-        let tempPath = NSTemporaryDirectory().stringByAppendingPathComponent(filename as String)
+        let tempPath = (NSTemporaryDirectory() as NSString).stringByAppendingPathComponent(filename as String)
         let fileURL = NSURL.fileURLWithPath(tempPath)
-        return fileURL!.path!
+        return fileURL.path!
     }
     
     class func temporaryFile() -> NSString {

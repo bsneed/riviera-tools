@@ -54,52 +54,52 @@ class UploadCommand: Command {
     }
     
     override func handleOptions() {
-        onFlags(["--verbose"], block: { (flag) -> () in
+        onFlags(["--verbose"], usage: "Show more details about what's happening.", block: { (flag) -> () in
             self.verbose = true
-        }, usage: "Show more details about what's happening.")
+        })
 
-        onFlags(["--disablegitlog"], block: { (flag) -> () in
+        onFlags(["--disablegitlog"], usage: "Disables appending the git log to the notes.", block: { (flag) -> () in
             self.useGitLogs = false
-        }, usage: "Disables appending the git log to the notes.")
+        })
         
-        onFlags(["--randompasscode"], block: { (flag) -> () in
+        onFlags(["--randompasscode"], usage: "Generate a random passcode.", block: { (flag) -> () in
             self.randompasscode = true
             let randomPassword = PasswordGenerator().generateHex()
             self.passcode = randomPassword
-        }, usage: "Generate a random passcode.")
-        
-        onKeys(["--availability"], block: {key, value in
+		})
+
+        onKeys(["--availability"], usage: "Specifies the availablility of the build.\nUse the following values:\n\n 10_minutes\n 1_hour\n 3_hours\n 6_hours\n 12_hours\n 24_hours\n 1_week\n 2_weeks\n 1_month\n 2_months", valueSignature: "availability", block: {key, value in
             self.availability = value
-        }, usage: "Specifies the availablility of the build.\nUse the following values:\n\n 10_minutes\n 1_hour\n 3_hours\n 6_hours\n 12_hours\n 24_hours\n 1_week\n 2_weeks\n 1_month\n 2_months", valueSignature: "availability")
+        })
         
-        onKeys(["--passcode"], block: { (key, value) -> () in
+        onKeys(["--passcode"], usage: "Specify the passcode to use for the build.", valueSignature: "passcode", block: { (key, value) -> () in
             self.passcode = value
-        }, usage: "Specify the passcode to use for the build.", valueSignature: "passcode")
+        })
         
-        onKeys(["--apikey"], block: { (key, value) -> () in
+        onKeys(["--apikey"], usage: "Your RivieraBuild API key.", valueSignature: "apikey", block: { (key, value) -> () in
             self.apiKey = value
-        }, usage: "Your RivieraBuild API key.", valueSignature: "apikey")
+        })
         
-        onKeys(["--appid"], block: { (key, value) -> () in
+        onKeys(["--appid"], usage: "Your App ID in RivieraBuild.", valueSignature: "appid", block: { (key, value) -> () in
             self.appID = value
-        }, usage: "Your App ID in RivieraBuild.", valueSignature: "appid")
+        })
         
-        onKeys(["--note"], block: { (key, value) -> () in
+        onKeys(["--note"], usage: "The note to show in RivieraBuild", valueSignature: "note", block: { (key, value) -> () in
             self.note = value
-        }, usage: "The note to show in RivieraBuild", valueSignature: "note")
+        })
         
-        onKeys(["--projectdir"], block: { (key, value) -> () in
+        onKeys(["--projectdir"], usage: "The directory of your project, for Git logs.", valueSignature: "projectdir", block: { (key, value) -> () in
             self.projectDir = value
-        }, usage: "The directory of your project, for Git logs.", valueSignature: "projectdir")
+        })
         
         // slack config bits
-        onKeys(["--slackhookurl"], block: { (key, value) -> () in
+        onKeys(["--slackhookurl"], usage: "Your Slack webhook URL.", valueSignature: "slackhookurl", block: { (key, value) -> () in
             self.slackHookURL = value
-        }, usage: "Your Slack webhook URL.", valueSignature: "slackhookurl")
+        })
 
-        onKeys(["--slackchannel"], block: { (key, value) -> () in
+        onKeys(["--slackchannel"], usage: "The Slack channel to post to.", valueSignature: "slackchannel", block: { (key, value) -> () in
             self.slackChannel = value
-        }, usage: "The Slack channel to post to.", valueSignature: "slackchannel")
+        })
     }
     
     override func execute() -> CommandResult {
@@ -108,11 +108,14 @@ class UploadCommand: Command {
         let riviera = RivieraBuildAPI(apiKey: apiKey!)
         
         // if we were given a projectDir, is it valid?
-        if let projectDir = projectDir {
-            let fileManager = NSFileManager.defaultManager()
-            var isDir: ObjCBool = false
-            let exists = fileManager.fileExistsAtPath(projectDir, isDirectory: &isDir)
-            
+        if projectDir != nil {
+			var isDir: ObjCBool = false
+
+			if let projectDir = projectDir {
+				let fileManager = NSFileManager.defaultManager()
+				fileManager.fileExistsAtPath(projectDir, isDirectory: &isDir)
+			}
+
             if !isDir {
                 return .Failure("The specified value for project dir is not a directory or invalid.")
             }
@@ -124,19 +127,21 @@ class UploadCommand: Command {
         commitHash = currentCommitHash()
         
         if let commitHash = commitHash {
-            if count(commitHash) == 0 {
+            if commitHash.characters.count == 0 {
                 // we don't have it, lets bolt.
                 return .Failure("Unable to query the current commit hash.  Is this a Git repository?")
             }
         }
         
         // get the last commit hash, we need it later if it's there.
-        var json = riviera.lastUploadedBuildInfo(appID!)
-        
-        if let json = json {
-            lastCommitHash = json["commit_sha"].asString
-        }
-        
+        let json = riviera.lastUploadedBuildInfo(appID!)
+
+        if let json = json, let lastCommitHash = json["commit_sha"].asString {
+            self.lastCommitHash = lastCommitHash
+		} else if verbose {
+			print("Failed to get last commit hash from riviera: \(json)")
+		}
+
         if useGitLogs {
             // try and get the build notes from git log.
             // these will be merged with whatever was passed along in --note.
@@ -157,7 +162,7 @@ class UploadCommand: Command {
         switch result {
         case .Success:
             0
-        case .Failure(let string):
+        case .Failure:
             return result
         }
         
@@ -169,7 +174,7 @@ class UploadCommand: Command {
         switch result {
         case .Success:
             0
-        case .Failure(let string):
+        case .Failure:
             return result
         }
         
@@ -255,21 +260,17 @@ class UploadCommand: Command {
                 parameters["commit_sha"] = commitHash!
             }
 
-            println("SHA sent to riviera: \(commitHash!)")
+            print("SHA sent to riviera: \(commitHash!)")
             
             let riviera = RivieraBuildAPI(apiKey: apiKey!)
             let json = riviera.uploadBuild(ipa, parameters: parameters)
 
-            if let json = json {
-                if let resultURL = json["file_url"].asString {
-                    self.rivieraURL = resultURL
-                }
-            }
+            if let json = json, let resultURL = json["file_url"].asString {
+				self.rivieraURL = resultURL
+			} else if verbose {
+				return .Failure("Failed to get the result URL from riviera. \(json)")
+			}
 
-            if rivieraURL == nil {
-                return .Failure("Failed to get the result URL from RivieraBuild.")
-            }
-            
             return .Success
         } else {
             return .Failure("The IPA specified does not exist.")
@@ -286,15 +287,15 @@ class UploadCommand: Command {
         
         let command = "git log --format='%H' -n 1"
         if verbose {
-            println(command)
+            print(command)
         }
-        let status: Int32 = shellCommand(command) { (status, output) -> Void in
+       shellCommand(command) { (status, output) -> Void in
             if status == 0 {
                 commitHash = output.stringByReplacingOccurrencesOfString("\n", withString: "")
             }
         }
         
-        if let projectDir = projectDir {
+        if projectDir != nil {
             NSFileManager.defaultManager().changeCurrentDirectoryPath(currentPath)
         }
         
@@ -334,12 +335,12 @@ class UploadCommand: Command {
         
         if let json = json {
             if let version = json["version"].asString {
-                if version != "null" && count(version) > 0 {
+                if version != "null" && version.characters.count > 0 {
                     self.version = version
                 }
             }
             if let buildNumber = json["build_number"].asString {
-                if buildNumber != "null" && count(buildNumber) > 0 {
+                if buildNumber != "null" && buildNumber.characters.count > 0 {
                     self.buildNumber = buildNumber
                 }
             }
@@ -357,23 +358,23 @@ class UploadCommand: Command {
         
         let command = String(format: "git log --oneline --no-merges %@..HEAD --format=\"- %%s   -- %%cn\"", sinceHash)
         if verbose {
-            println(command)
+            print(command)
         }
-        let status: Int32 = shellCommand(command) { (status, output) -> Void in
+        shellCommand(command) { (status, output) -> Void in
             if status == 0 {
                 commitNotes = output
                 
                 // commitNotes ends up containing the log for the commit referenced and an extra \n.  I don't know
                 // how to exclude it, so i'm doing this hacky thing.  :(
                 
-                var logs: [String] = commitNotes!.componentsSeparatedByString("\n")
+                let logs: [String] = commitNotes!.componentsSeparatedByString("\n")
                 
                 // escape the carriage returns
-                commitNotes = "\n".join(logs)
+                commitNotes = logs.joinWithSeparator("\n")
             }
         }
         
-        if let projectDir = projectDir {
+        if projectDir != nil {
             NSFileManager.defaultManager().changeCurrentDirectoryPath(currentPath)
         }
         

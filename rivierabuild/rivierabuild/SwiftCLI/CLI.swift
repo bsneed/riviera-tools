@@ -28,7 +28,7 @@ class CLI: NSObject {
         static var defaultCommand: Command = CLIStatic.helpCommand!
     }
     
-    class func setup(#name: String, version: String = "1.0", description: String = "") {
+    class func setup(name name: String, version: String = "1.0", description: String = "") {
         CLIStatic.appName = name
         CLIStatic.appVersion = version
         CLIStatic.appDescription = description
@@ -54,7 +54,7 @@ class CLI: NSObject {
         }
     }
     
-    class func registerChainableCommand(#commandName: String) -> ChainableCommand {
+    class func registerChainableCommand(commandName commandName: String) -> ChainableCommand {
         let chainable = ChainableCommand(commandName: commandName)
         registerCommand(chainable)
         return chainable
@@ -123,7 +123,7 @@ class CLI: NSObject {
     
     // MARK: - Privates
     
-    class private func routeCommand(#arguments: Arguments) -> Result<Router.Route> {
+    class private func routeCommand(arguments arguments: Arguments) -> Result<Router.Route> {
         var allCommands = CLIStatic.commands
         if let hc = CLIStatic.helpCommand {
             hc.allCommands = CLIStatic.commands

@@ -19,10 +19,10 @@ func shellCommand(command: String, parseClosure: ((status: Int32, output: String
     
     let status = system(tempCommand.cStringUsingEncoding(NSUTF8StringEncoding))
     
-    if (parseClosure != nil) {
-        let outputString = NSString(contentsOfFile: tempFile as String, encoding: NSUTF8StringEncoding, error: nil)
-        parseClosure!(status: status, output: outputString as! String)
-        NSFileManager.defaultManager().removeItemAtPath(tempFile as String, error: nil)
+    if let parseClosure = parseClosure, let outputString = try? String(contentsOfFile: tempFile as String, encoding: NSUTF8StringEncoding) {
+
+        parseClosure(status: status, output: outputString)
+        do { try NSFileManager.defaultManager().removeItemAtPath(tempFile as String) } catch _ { }
     }
     
     return status
